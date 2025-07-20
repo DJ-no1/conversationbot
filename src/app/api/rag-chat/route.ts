@@ -12,12 +12,13 @@ export async function POST(request: NextRequest) {
         }
 
         // Use PDFLoader to extract text from the PDF
-        const loader = new PDFLoader(file);
+        const loader = new PDFLoader(file as Blob);
         const docs = await loader.load();
         // Combine all page texts
-        const text = docs.map((d) => d.pageContent).join("\n\n");
+        const text = docs.map((d: { pageContent: string }) => d.pageContent).join("\n\n");
         return NextResponse.json({ text });
-    } catch (err: any) {
-        return NextResponse.json({ error: err.message || String(err) }, { status: 500 });
+    } catch (err) {
+        const errorMsg = err instanceof Error ? err.message : String(err);
+        return NextResponse.json({ error: errorMsg }, { status: 500 });
     }
 }

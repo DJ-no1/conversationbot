@@ -23,7 +23,7 @@ export default function RagPage() {
         const formData = new FormData();
         formData.append("file", pdfFile);
         const res = await fetch("/api/parse-pdf", { method: "POST", body: formData });
-        const data = await res.json();
+        const data: { text?: string; error?: string } = await res.json();
         setParsedText(data.text || "");
         setChatMessages([]);
         setParsing(false);
@@ -39,10 +39,11 @@ export default function RagPage() {
                 headers: { "Content-Type": "application/json" },
                 body: JSON.stringify({ question: msg, context: parsedText }),
             });
-            const data = await res.json();
+            const data: { answer?: string; error?: string } = await res.json();
             setChatMessages(prev => [...prev, { sender: "bot", text: data.answer || data.error || "Error from LLM" }]);
-        } catch (err: any) {
-            setChatMessages(prev => [...prev, { sender: "bot", text: err.message || "Network error" }]);
+        } catch (err) {
+            const errorMsg = err instanceof Error ? err.message : "Network error";
+            setChatMessages(prev => [...prev, { sender: "bot", text: errorMsg }]);
         }
         setChatLoading(false);
     };

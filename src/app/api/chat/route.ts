@@ -25,7 +25,8 @@ export async function POST(req: NextRequest) {
         const result = await tracedInvoke(message);
 
         return NextResponse.json({ response: result.content });
-    } catch (err: any) {
-        return NextResponse.json({ error: err.message || String(err) }, { status: 500 });
+    } catch (err) {
+        const errorMsg = err instanceof Error ? err.message : String(err);
+        return NextResponse.json({ error: errorMsg }, { status: 500 });
     }
 }

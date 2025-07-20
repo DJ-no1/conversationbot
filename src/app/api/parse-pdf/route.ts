@@ -9,11 +9,11 @@ export async function POST(req: NextRequest) {
         return NextResponse.json({ error: "No file uploaded" }, { status: 400 });
     }
 
-
     // Use LangChain PDFLoader to parse the PDF (file is a Blob)
     const loader = new PDFLoader(file as Blob);
     const docs = await loader.load();
-    const text = docs.map((doc: any) => doc.pageContent).join("\n");
+    // Type the doc as { pageContent: string }
+    const text = docs.map((doc: { pageContent: string }) => doc.pageContent).join("\n");
 
     return NextResponse.json({ text });
 }

@@ -12,9 +12,9 @@ const WaveformVisualizer: React.FC<WaveformVisualizerProps> = ({ isRecording }) 
     const sourceRef = useRef<MediaStreamAudioSourceNode | null>(null);
     const animationIdRef = useRef<number | null>(null);
     const streamRef = useRef<MediaStream | null>(null);
-    const [volume, setVolume] = React.useState(0);
-    const [timer, setTimer] = React.useState(0);
-    const timerIntervalRef = useRef<NodeJS.Timeout | null>(null);
+    const [volume, setVolume] = React.useState<number>(0);
+    const [timer, setTimer] = React.useState<number>(0);
+    const timerIntervalRef = useRef<ReturnType<typeof setInterval> | null>(null);
 
     useEffect(() => {
         if (!isRecording) {
@@ -52,7 +52,8 @@ const WaveformVisualizer: React.FC<WaveformVisualizerProps> = ({ isRecording }) 
         navigator.mediaDevices.getUserMedia({ audio: true }).then((stream) => {
             if (!mounted) return;
             streamRef.current = stream;
-            const audioContext = new (window.AudioContext || (window as any).webkitAudioContext)();
+            const AudioContextClass = window.AudioContext || (window as typeof window & { webkitAudioContext?: typeof AudioContext }).webkitAudioContext;
+            const audioContext = new AudioContextClass();
             audioContextRef.current = audioContext;
             const source = audioContext.createMediaStreamSource(stream);
             sourceRef.current = source;

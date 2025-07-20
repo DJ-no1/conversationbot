@@ -22,7 +22,7 @@ export default function ChatInterface({
     ttsPitch = 1,
     ttsVolume = 1,
     ttsVoice = "",
-    setTtsVoice,
+    // setTtsVoice,
     speak,
     onUserInput,
 }: {
@@ -46,8 +46,15 @@ export default function ChatInterface({
     const [input, setInput] = useState("");
     const inputRef = useRef<HTMLInputElement>(null);
     const [voices, setVoices] = useState<SpeechSynthesisVoice[]>([]);
-    // Use ttsVoice and setTtsVoice from props if provided
-    const [selectedVoice, setSelectedVoice] = typeof ttsVoice === "string" && setTtsVoice ? [ttsVoice, setTtsVoice] : useState<string>("");
+    // Always use useState for selectedVoice, sync with props if provided
+    const [selectedVoice, setSelectedVoice] = useState<string>(ttsVoice || "");
+
+    // Keep selectedVoice in sync with ttsVoice prop if it changes
+    useEffect(() => {
+        if (ttsVoice && ttsVoice !== selectedVoice) {
+            setSelectedVoice(ttsVoice);
+        }
+    }, [ttsVoice, selectedVoice]);
 
     // Load available voices
     useEffect(() => {
@@ -62,7 +69,7 @@ export default function ChatInterface({
             populateVoices();
             window.speechSynthesis.onvoiceschanged = populateVoices;
         }
-    }, []);
+    }, [selectedVoice]);
 
     // Text-to-speech for bot messages
     // Track last spoken message index to avoid TTS loop

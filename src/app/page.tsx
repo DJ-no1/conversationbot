@@ -1,5 +1,19 @@
-
 "use client";
+// Minimal type definitions for browser SpeechRecognition API
+type SpeechRecognition = {
+  lang: string;
+  interimResults: boolean;
+  maxAlternatives: number;
+  onresult: ((event: SpeechRecognitionEvent) => void) | null;
+  onerror: ((event: Event) => void) | null;
+  onend: (() => void) | null;
+  start: () => void;
+  stop: () => void;
+};
+interface SpeechRecognitionEvent extends Event {
+  results: SpeechRecognitionResultList;
+}
+
 
 import { useState, useRef, useEffect } from "react";
 import WaveformVisualizer from "@/components/WaveformVisualizer";
@@ -40,16 +54,20 @@ export default function Home() {
       } else {
         setMessages((prev) => [...prev, { sender: "bot", text: data.error || "Error from API" }]);
       }
-    } catch (err: any) {
-      setMessages((prev) => [...prev, { sender: "bot", text: err.message || "Network error" }]);
+    } catch (err) {
+      let errorMsg = "Network error";
+      if (err instanceof Error) {
+        errorMsg = err.message;
+      }
+      setMessages((prev) => [...prev, { sender: "bot", text: errorMsg }]);
     }
     setLoading(false);
   };
 
   // Voice input (speech-to-text)
-  const recognitionRef = useRef<any>(null);
-  const silenceTimeoutRef = useRef<any>(null);
-  const ttsUtteranceRef = useRef<any>(null);
+  const recognitionRef = useRef<SpeechRecognition | null>(null);
+  const silenceTimeoutRef = useRef<NodeJS.Timeout | null>(null);
+  const ttsUtteranceRef = useRef<SpeechSynthesisUtterance | null>(null);
 
   // Helper: Start silence timer
   const startSilenceTimer = () => {
@@ -76,12 +94,12 @@ export default function Home() {
     }
     setIsRecording(true);
     setInterimText("");
-    const SpeechRecognition = (window as any).webkitSpeechRecognition;
-    const recognition = new SpeechRecognition();
+    const SpeechRecognitionCtor = window.webkitSpeechRecognition as { new(): SpeechRecognition };
+    const recognition = new SpeechRecognitionCtor();
     recognition.lang = 'en-US';
     recognition.interimResults = true;
     recognition.maxAlternatives = 1;
-    recognition.onresult = (event: any) => {
+    recognition.onresult = (event: SpeechRecognitionEvent) => {
       let interim = "";
       let final = "";
       for (let i = 0; i < event.results.length; ++i) {
