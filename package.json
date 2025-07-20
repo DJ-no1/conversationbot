@@ -14,6 +14,7 @@
     "@langchain/google-genai": "^0.2.15",
     "@langchain/langgraph": "^0.3.10",
     "@radix-ui/react-slot": "^1.2.3",
+    "assemblyai": "^4.14.0",
     "class-variance-authority": "^0.7.1",
     "clsx": "^2.1.1",
     "langchain": "^0.3.30",
