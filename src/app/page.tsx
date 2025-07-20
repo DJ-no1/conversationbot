@@ -147,8 +147,10 @@ export default function Home() {
       if (match) utter.voice = match;
     }
     utter.onend = () => {
-      // After TTS finishes, auto-start mic
-      onStartVoice();
+      // After TTS finishes, auto-start mic only if in voice mode
+      if (inputMode === "voice") {
+        onStartVoice();
+      }
     };
     ttsUtteranceRef.current = utter;
     window.speechSynthesis.speak(utter);
