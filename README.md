@@ -1,4 +1,79 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# Conversational Bot - Project Overview & Flow
+
+This project is a modern conversational bot webapp built with Next.js, React, and TypeScript. It features:
+
+- Text and voice input (STT - Speech-to-Text)
+- Bot responses with Text-to-Speech (TTS) and live controls for speed, pitch, volume, and voice
+- Visual waveform and volume feedback during voice input
+- Live transcription, silence detection, and auto-send
+- Persistent chat history (in-memory, can be extended)
+
+## Main Files & Structure
+
+**src/app/page.tsx**
+
+- The main entry point for the app UI.
+- Handles global state: messages, loading, input mode, TTS/STT settings.
+- Implements the logic for sending messages, starting/stopping voice recognition, and TTS playback.
+- Renders the `ChatInterface` and `WaveformVisualizer` components.
+
+**src/components/ChatInterface.tsx**
+
+- The main chat UI component.
+- Displays chat history, interim transcription, and input controls.
+- Handles text/voice input switching, message sending, and TTS voice selection.
+- Accepts props for TTS/STT controls and callbacks.
+- Triggers TTS for bot messages and allows live changes to TTS settings.
+
+**src/components/WaveformVisualizer.tsx**
+
+- Shows a live waveform and volume bar when recording voice input.
+- Uses the Web Audio API to visualize microphone input.
+- Displays a timer for the current recording session.
+
+**API Endpoints**
+
+- `src/app/api/chat/route.ts`: Handles POST requests for chat messages, returns bot responses.
+- (You can extend with more endpoints for PDF parsing, RAG, etc.)
+
+**Other Files**
+
+- `src/app/components/ui/button.tsx`: Button UI component.
+- `src/app/globals.css`: Global styles.
+- `public/`: Static assets (SVGs, icons).
+
+## Component Flow
+
+1. **User opens the app** (`/src/app/page.tsx`)
+
+   - Dark mode is forced on mount.
+   - State is initialized for chat, TTS/STT, and UI.
+
+2. **User interacts with the chat**
+
+   - Can type a message or switch to voice mode.
+   - In voice mode, clicking the button starts speech recognition and shows the waveform visualizer.
+   - Live transcription is shown as the user speaks.
+   - If the user is silent for 4 seconds, the interim text is auto-sent.
+   - User can edit the transcribed text before sending if desired.
+
+3. **Bot responds**
+
+   - The message is sent to `/api/chat` and the response is added to the chat.
+   - TTS automatically reads the bot's response using the selected voice, speed, pitch, and volume.
+   - User can change TTS settings live; changes take effect immediately, even during playback.
+   - Changing the voice will replay the last bot message in the new voice.
+
+4. **WaveformVisualizer**
+   - Shows a real-time waveform and volume bar while recording.
+   - Displays a timer for the current recording session.
+
+## Developer Notes
+
+- All TTS/STT settings are controlled via React state and passed as props.
+- The app is designed for easy extension (e.g., add persistent storage, more input modes, or advanced bot logic).
+- For best results, use Chrome (for webkitSpeechRecognition support).
+- The code is modular and easy to test or modify for new features.
 
 ## Getting Started
 
